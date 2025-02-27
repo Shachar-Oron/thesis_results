@@ -1,0 +1,117 @@
+---
+title: "Gaze Positions in Turns"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+# Install and load necessary packages
+if (!requireNamespace("openxlsx", quietly = TRUE)) install.packages("openxlsx")
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+library(openxlsx)
+library(ggplot2)
+library(dplyr)
+library(scales)  # For pretty_breaks function
+
+create_graphs <- function(file) {
+  # Read the Excel file
+  df <- read.xlsx(file)
+  
+  # Check if the required columns are present
+  if (!("norm_pos_y" %in% colnames(df)) | !("norm_pos_x" %in% colnames(df))) {
+    cat(paste("Required columns not found in file:", file, "\n"))
+    return(NULL)
+  }
+  
+  # Filter out periods with no gaze positions (assuming NA or empty entries)
+  df <- df[!is.na(df$norm_pos_y) & !is.na(df$norm_pos_x), ]
+  
+  # Check if dataframe is empty after filtering
+  if (nrow(df) == 0) {
+    cat(paste("No valid data found in file:", file, "\n"))
+    return(NULL)
+  }
+  
+  # Extract the patient ID from the file name
+  patient_id <- tools::file_path_sans_ext(basename(file))
+  patient_id <- gsub("clean_turns_data_gaze_data_", "", patient_id)
+  
+  # Assuming the first column is the time column
+  time_col <- df[, 1]
+  
+  # Create background data
+  bg_data <- data.frame(
+    start = c(min(time_col), time_col[-length(time_col)]),
+    end = c(time_col[-1], max(time_col))
+  ) %>%
+    mutate(fill = ifelse(end - start <= 1, "white", "gray"))
+  
+  # Create vertical gaze positions graph
+  vertical_plot <- ggplot() +
+    geom_rect(data = bg_data, aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf, fill = fill), alpha = 0.3) +
+    geom_line(data = df, aes(x = time_col, y = norm_pos_y), color = "blue", linewidth = 0.5, na.rm = TRUE) +
+    scale_fill_identity() +
+    scale_x_continuous(breaks = pretty_breaks(n = (max(time_col) - min(time_col)) / 20)) +
+    scale_y_continuous(limits = c(-500, 1000), breaks = seq(-500, 1000, by = 250)) +
+    ggtitle(paste("Vertical gaze positions", patient_id)) +
+    xlab("Time (seconds)") +
+    ylab("Vertical Gaze Position") +
+    theme(plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"),
+          axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # Save the vertical plot
+  vertical_plot_file <- file.path(dirname(file), paste0("vertical_gaze_", patient_id, ".png"))
+  ggsave(vertical_plot_file, vertical_plot, width = 12, height = 6, dpi = 300)
+  
+  # Print the vertical plot
+  print(vertical_plot)
+  
+  # Create horizontal gaze positions graph (similar to vertical)
+  horizontal_plot <- ggplot() +
+    geom_rect(data = bg_data, aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf, fill = fill), alpha = 0.3) +
+    geom_line(data = df, aes(x = time_col, y = norm_pos_x), color = "blue", linewidth = 0.5, na.rm = TRUE) +
+    scale_fill_identity() +
+    scale_x_continuous(breaks = pretty_breaks(n = (max(time_col) - min(time_col)) / 20)) +
+    scale_y_continuous(limits = c(-500, 1000), breaks = seq(-500, 1000, by = 250)) +
+    ggtitle(paste("Horizontal gaze positions", patient_id)) +
+    xlab("Time (seconds)") +
+    ylab("Horizontal Gaze Position") +
+    theme(plot.margin = margin(t = 20, r = 20, b = 20, l = 20, unit = "pt"),
+          axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # Save the horizontal plot
+  horizontal_plot_file <- file.path(dirname(file), paste0("horizontal_gaze_", patient_id, ".png"))
+  ggsave(horizontal_plot_file, horizontal_plot, width = 12, height = 6, dpi = 300)
+  
+  # Print the horizontal plot
+  print(horizontal_plot)
+  
+  cat(paste("Graphs created for patient:", patient_id, "\n"))
+}
+
+# Set the directory containing the gaze data files
+gaze_data_dir <- "C:/Users/shach/Documents/Shachar-s_Thesis2/דטה בסיבובים/new_clean_outputs/non_turns_data"
+
+
+# List all Excel files in the directory
+files <- list.files(gaze_data_dir, pattern = "*.xlsx", full.names = TRUE)
+
+# Apply the function to all files
+lapply(files, create_graphs)
+
+```
+
+
