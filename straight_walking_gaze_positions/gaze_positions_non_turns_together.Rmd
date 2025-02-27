@@ -1,0 +1,113 @@
+---
+title: "gaze_positions_non_turns_together"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readxl)
+
+create_combined_graphs <- function(file) {
+  # Read the Excel file
+  df <- tryCatch({
+    read_xlsx(file)
+  }, error = function(e) {
+    cat(paste("Error reading file:", file, "\n"))
+    return(NULL)
+  })
+  
+  if (is.null(df)) return(NULL)
+  
+  # Check if the required columns are present
+  if (!("norm_pos_y" %in% colnames(df)) | !("norm_pos_x" %in% colnames(df))) {
+    cat(paste("Required columns not found in file:", file, "\n"))
+    return(NULL)
+  }
+  
+  # Filter out periods with no gaze positions (assuming NA or empty entries)
+  df <- df[!is.na(df$norm_pos_y) & !is.na(df$norm_pos_x), ]
+  
+  # Check if dataframe is empty after filtering
+  if (nrow(df) == 0) {
+    cat(paste("No valid data found in file:", file, "\n"))
+    return(NULL)
+  }
+  
+  # Extract the patient ID from the file name
+  patient_id <- tools::file_path_sans_ext(basename(file))
+  patient_id <- gsub("clean_turns_data_gaze_data_", "", patient_id)
+  
+  # Assuming the first column is the time column
+  time_col_name <- names(df)[1]
+  
+  # Identify segments based on time jumps
+  df$segment <- cumsum(c(TRUE, diff(df[[time_col_name]]) > 5))
+  
+  # Normalize time within each segment
+  df <- df %>%
+    group_by(segment) %>%
+    mutate(normalized_time = !!sym(time_col_name) - min(!!sym(time_col_name))) %>%
+    ungroup()
+  
+  # Create vertical gaze positions graph
+  vertical_plot <- ggplot(df, aes(x = normalized_time, y = norm_pos_y, color = factor(segment))) +
+    geom_line(linewidth = 0.5, na.rm = TRUE) +
+    scale_color_discrete(name = "Segment") +
+    scale_y_continuous(limits = c(-500, 1000), breaks = seq(-500, 1000, by = 250)) +
+    ggtitle(paste("Vertical gaze positions - Straight Walking", patient_id)) +
+    xlab("Normalized Time") +
+    ylab("Vertical Gaze Position") +
+    theme_minimal() +
+    theme(legend.position = "right")
+  
+  # Save the vertical plot
+  vertical_plot_file <- file.path(dirname(file), paste0("combined_vertical_gaze_straight_", patient_id, ".png"))
+  ggsave(vertical_plot_file, vertical_plot, width = 12, height = 6, dpi = 300)
+  
+  # Print the vertical plot
+  print(vertical_plot)
+  
+  # Create horizontal gaze positions graph
+  horizontal_plot <- ggplot(df, aes(x = normalized_time, y = norm_pos_x, color = factor(segment))) +
+    geom_line(linewidth = 0.5, na.rm = TRUE) +
+    scale_color_discrete(name = "Segment") +
+    scale_y_continuous(limits = c(-500, 1000), breaks = seq(-500, 1000, by = 250)) +
+    ggtitle(paste("Horizontal gaze positions - Straight Walking", patient_id)) +
+    xlab("Normalized Time") +
+    ylab("Horizontal Gaze Position") +
+    theme_minimal() +
+    theme(legend.position = "right")
+  
+  # Save the horizontal plot
+  horizontal_plot_file <- file.path(dirname(file), paste0("combined_horizontal_gaze_straight_", patient_id, ".png"))
+  ggsave(horizontal_plot_file, horizontal_plot, width = 12, height = 6, dpi = 300)
+  
+  # Print the horizontal plot
+  print(horizontal_plot)
+  
+  cat(paste("Combined graphs created for patient (straight walking):", patient_id, "\n"))
+}
+
+# Set the directory containing the gaze data files
+gaze_data_dir <- "C:/Users/shach/Documents/Shachar-s_Thesis2/דטה בסיבובים/new_clean_outputs/non_turns_data"
+
+# List all Excel files in the directory
+files <- list.files(gaze_data_dir, pattern = "*.xlsx", full.names = TRUE)
+
+# Apply the function to all files
+lapply(files, create_combined_graphs)
+```
