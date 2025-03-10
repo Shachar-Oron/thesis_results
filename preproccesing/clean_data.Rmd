@@ -1,0 +1,129 @@
+---
+title: "clean_data"
+author: "Shachar oron "
+date: "2023-11-20"
+output: pdf_document
+---
+In this code i will try to clean and analyze the data of pd patiens (ON & OFF) and healthy patiens. 
+
+```{r}
+knitr::opts_knit$set(root.dir = 'C:/Users/shach/master/Master/data')
+
+# Assuming your original data is stored in a variable named 'data'
+data <- read.csv("../data/EC02_NB325/STRAIGHT_BASELINE/exports/000/gaze_positions.csv")
+
+# Extract column names
+column_names <- colnames(data)
+
+# Print or view the column names
+print(column_names)
+
+```
+Now i would like to clean the data , I have dicided that rows that has less than 0.5 in the "confidence" column, i will delete them. There will be still some NA values in the data, so, i installed the 'mice' library that replace the NA values with other values according to the distribution of the other values in the data. 
+```{r}
+knitr::opts_knit$set(root.dir = 'C:/Users/shach/master/Master/data')
+
+# Remove rows with confidence less than 0.5
+data <- data[data$confidence >= 0.5, , drop = FALSE]
+
+# Load the 'mice' library
+library(mice)
+
+# Perform mice imputation
+imputed_data <- mice(data, method = "pmm", m = 5)  # You can choose a different imputation method
+
+# Extract the completed data
+completed_data <- complete(imputed_data)
+
+```
+Remove rows with NA values:
+
+```{r}
+# Step 1: Remove Rows with Low Confidence
+data <- data[data$confidence >= 0.5, , drop = FALSE]
+
+# Step 2: Impute Missing Values Using 'mice'
+# Install and load 'mice' library if not installed
+#install.packages("mice")
+library(mice)
+
+# Replace "n" values with NA
+data[data == "n" | data == "N"] <- NA
+
+# Convert columns to numeric
+data <- as.data.frame(lapply(data, as.numeric))
+
+# Perform single imputation using mice
+imputation_object <- mice(data, m = 1)
+
+# Access the imputed data without modifying column names
+imputed_data <- complete(imputation_object, action = "long", include = FALSE)
+
+```
+
+```{r}
+# Specify the full path for saving the CSV file
+output_file_path <- "../data/EC02_NB325/STRAIGHT_BASELINE/exports/000/imputed_data.csv"
+
+# Save imputed data to a CSV file
+write.csv(imputed_data, output_file_path, row.names = FALSE)
+
+```
+Now when we got our data cleaned. We will jump in and start by loading the clean data and analyze it. 
+
+
+
+
+
+```{r}
+
+knitr::opts_knit$set(root.dir = 'C:/Users/shach/master/Master/data')
+
+# Function to clean and impute data for specific columns
+clean_and_impute <- function(file_path) {
+  # Read the data
+  data <- read.csv(file_path)
+  
+  # Columns to impute
+  columns_to_impute <- c("norm_pos_x", "norm_pos_y", "gaze_normal0_x", "gaze_normal0_y", "gaze_normal0_z",
+                         "gaze_normal1_x", "gaze_normal1_y", "gaze_normal1_z")
+  
+  # Remove rows with confidence less than 0.5
+  data <- data[data$confidence >= 0.5, , drop = FALSE]
+  
+  # Install and load 'mice' library if not installed
+  # install.packages("mice")
+  library(mice)
+  
+  # Replace "n" values with NA only in the specified columns
+  data[, columns_to_impute][data[, columns_to_impute] == "n" | data[, columns_to_impute] == "N"] <- NA
+  
+  # Convert columns to numeric
+  data[, columns_to_impute] <- lapply(data[, columns_to_impute], as.numeric)
+  
+  # Perform single imputation using mice only for specified columns
+  imputation_object <- mice(data[, columns_to_impute], m = 1)
+  
+  # Access the imputed data without modifying column names
+  imputed_data <- complete(imputation_object, action = "long", include = FALSE)
+  
+  # Merge the imputed data with the original data
+  data_imputed <- merge(data, imputed_data, by = 0, all.x = TRUE)
+  
+  # Specify the output file path
+  output_file_path <- file.path(dirname(file_path), "imputed_data.csv")
+  
+  # Save imputed data to a CSV file
+  write.csv(data_imputed, output_file_path, row.names = FALSE)
+}
+
+# Find all files named "gaze_positions.csv" under "../data"
+files <- list.files(path = "../data", pattern = "gaze_positions.csv", recursive = TRUE, full.names = TRUE)
+
+# Apply the clean_and_impute function to each file
+lapply(files, clean_and_impute)
+
+
+```
+
+
