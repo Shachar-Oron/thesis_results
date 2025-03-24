@@ -43,10 +43,15 @@ MATLAB scripts for building a program that synchronizes and plays two videos (on
 To classify Parkinson’s disease (PD) patients and healthy controls based on pupil dynamics, a deep learning (DL) model was developed and trained on time-series pupil diameter data. This folder contains preprocessing scripts, analyses, and the model implementation.
 
 ### pupil dynamics
-1. **fft_pupil_size.py** – Computes the Fast Fourier Transform (FFT) on pupil diameter data for each patient in different walking sessions. The FFT decomposes a time-domain signal (pupil diameter changes over time) into its frequency components.
-2. **wilcoxone_fft_areas.py** – Performs a statistical test to compare FFT analysis results between groups.
-3. **pupil_diameter.py** – Processes data by filtering relevant files based on user-selected criteria, extracting and analyzing pupil diameters with confidence levels, and generating an Excel report with individual and group statistics.
+This folder contains scripts and analyses related to pupil dynamics, focusing on the Fast Fourier Transform (FFT) of pupil diameter data and statistical comparisons between groups.
 
-
+1.  **fft_pupil_size - Copy.py** – Computes the Fast Fourier Transform (FFT) on pupil diameter data for each patient in different walking sessions. The FFT decomposes a time-domain signal (pupil diameter changes over time) into its frequency components. The "Copy" in the filename indicates this is an anonymized version.
+2.  **fft_results_report - Copy.xlsx** – An Excel report containing the results of the FFT analysis. This file likely includes frequency domain features extracted from the pupil diameter data, such as dominant frequencies and power spectral densities. The "Copy" in the filename indicates this is an anonymized version.
+3.  **gaze_positions_mean_and_std.py** – Calculates the mean and standard deviation of gaze positions. This script likely analyzes gaze data to understand the variability and central tendency of gaze behavior during different walking conditions.
+4.  **group_mean_fft_areas.xlsx, group_mean_fft_areas2.xlsx, group_mean_fft_areas3.xlsx, group_mean_fft_areas4.xlsx** – Excel files likely containing the mean FFT areas (or other relevant FFT features) for different groups or conditions. These files may represent summarized results used for statistical comparisons.
+5.  **Interactive_FFT_Group_Means.html, Interactive_FFT_Group_Means2.html, Interactive_FFT_Group_Means3.html, Interactive_FFT_Group_Means4.html** – Interactive HTML reports or visualizations of the group mean FFT results. These files likely allow for dynamic exploration of the data, potentially including interactive plots and tables.
+6.  **mannwhitney_test_results.xlsx** – An Excel file containing the results of Mann-Whitney U tests, a non-parametric statistical test used to compare two independent groups. This test is likely used to determine if there are significant differences in FFT features between patient groups.
+7.  **PATIENTS_pupil_diameter_and_d...** – (Filename truncated) This file likely contains raw or processed pupil diameter data for individual patients, possibly including time-series data and associated metadata.
+8.  **pupil_diameter - Copy.py** – Processes data by filtering relevant files based on user-selected criteria, extracting and analyzing pupil diameters with confidence levels, and generating an Excel report with individual and group statistics. The "Copy" in the filename indicates this is an anonymized version.
 
 
