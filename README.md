@@ -51,7 +51,7 @@ This folder contains scripts and analyses related to pupil dynamics, focusing on
 4.  **group_mean_fft_areas.xlsx, group_mean_fft_areas2.xlsx, group_mean_fft_areas3.xlsx, group_mean_fft_areas4.xlsx** – Excel files likely containing the mean FFT areas (or other relevant FFT features) for different groups or conditions. These files may represent summarized results used for statistical comparisons.
 5.  **Interactive_FFT_Group_Means.html, Interactive_FFT_Group_Means2.html, Interactive_FFT_Group_Means3.html, Interactive_FFT_Group_Means4.html** – Interactive HTML reports or visualizations of the group mean FFT results. These files likely allow for dynamic exploration of the data, potentially including interactive plots and tables.
 6.  **mannwhitney_test_results.xlsx** – An Excel file containing the results of Mann-Whitney U tests, a non-parametric statistical test used to compare two independent groups. This test is likely used to determine if there are significant differences in FFT features between patient groups.
-7.  **PATIENTS_pupil_diameter_and_d...** – (Filename truncated) This file likely contains raw or processed pupil diameter data for individual patients, possibly including time-series data and associated metadata.
+7.  **PATIENTS_pupil_diameter_and_d...** –  This file likely contains raw or processed pupil diameter data for individual patients, possibly including time-series data and associated metadata.
 8.  **pupil_diameter - Copy.py** – Processes data by filtering relevant files based on user-selected criteria, extracting and analyzing pupil diameters with confidence levels, and generating an Excel report with individual and group statistics. The "Copy" in the filename indicates this is an anonymized version.
 
 
