@@ -32,6 +32,7 @@ This folder contains all analyses conducted on segments where patients walked in
 4. **Q-Q_plots folder** – Contains quantile-quantile plots comparing data quantiles with theoretical distributions to assess data normality. A PowerPoint presentation explaining the analysis is included.
 5. **STRAIGHT_gaze_analysis_graphs** – Displays results indicating whether patients looked more to the right or left.
 6. **straight_walking_vertical_positions** – Similar to the previous analysis but focusing on whether patients looked more up or down.
+7. **gaze_statistics_summary - Copy** - excel file that contains the whole data of table 5 in the thesis
 
 ### preproccesing
 This folder contains scripts used for data cleaning, converting machine time to milliseconds, and identifying annotations (files that document events occurring in the experiment videos).
